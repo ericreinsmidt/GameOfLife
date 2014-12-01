@@ -1,0 +1,3 @@
+4.17a)
+
+The PTX representation of my code consists of 226 instructions. The included ptx.txt includes the PTX code in it's entirety, inluding directives. 
