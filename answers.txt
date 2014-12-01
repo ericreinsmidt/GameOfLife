@@ -1,3 +1,114 @@
+Eric Reinsmidt
+Lab 2
+
+I ran my code on a 2012 MacBook Pro with a Nvidia 650M GPU
+The final output when running the code should show the following phase of the pentadecathlon osciallator:
+
+								@@@
+								 @
+								 @
+								@@@
+								
+								@@@
+								@@@
+								
+								@@@
+								 @
+								 @
+								@@@
+
 4.17a)
 
-The PTX representation of my code consists of 226 instructions. The included ptx.txt includes the PTX code in it's entirety, inluding directives. 
+The PTX representation of my code consists of 226 instructions. The included ptx.txt includes the PTX code in it's entirety, inluding directives.
+
+There are both branch instructions and predicated non-branch instructions in the conditional sections of my PTX code.
+
+An example of a branch instruction can be seen here at %p5:
+
+BB2_3:
+	add.s32 	%r47, %r37, -1;
+	setp.ne.s32	%p3, %r2, %r47;
+	and.pred  	%p5, %p3, %p1;
+	@!%p5 bra 	BB2_5;
+	bra.uni 	BB2_4;
+
+An example of a predicated non-branch instruction can be seen here at %p2 and %r108:
+
+BB2_2:
+	cvta.to.global.u64 	%rd5, %rd3;
+	add.s32 	%r43, %r1, -1;
+	mul24.lo.u32 	%r44, %r43, %r37;
+	add.s32 	%r45, %r44, %r2;
+	cvt.s64.s32	%rd6, %r45;
+	add.s64 	%rd7, %rd5, %rd6;
+	ld.global.u8 	%rs1, [%rd7];
+	setp.eq.s16	%p2, %rs1, 1;
+	selp.u32	%r108, 1, 0, %p2;
+
+4.17b)
+
+The dynamic instruction count for my program was 392,441. This was determined using nvprof and using the inst_executed average value. The full output can be seen in the included nvprof_output.txt
+
+The instructions per cycle was pulled from the same nvprof output using the average of issued_ipc, which was 2.645993.
+
+The dynamic instruction breakdown is as follows:
+Control instructions 	100,408	// from cf_executed
+ALU instructions		271,028	// calculated from inst_executed - cf_executed - ldst_executed
+Memory instructions		21,005	// from ldst_executed
+
+There are not any shared memory bank conflicts since shared memory was not used.
+
+The effecive off-chip memory is:
+Global Store Throughput	219.49MB/s
+Global Load Throughput	3.1344GB/s
+
+4.17c)
+
+I ran the deviceQuery sample inlcluded with the CUDA Toolkit and found that my
+Warp size was 32, as shown in the output below. Based on that I would have
+changed the block dimension to match the Warp size (number of threads).
+Unfortunately I ran out of time:
+
+🍺 :deviceQuery ./deviceQuery 
+./deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "GeForce GT 650M"
+  CUDA Driver Version / Runtime Version          6.5 / 6.5
+  CUDA Capability Major/Minor version number:    3.0
+  Total amount of global memory:                 1024 MBytes (1073414144 bytes)
+  ( 2) Multiprocessors, (192) CUDA Cores/MP:     384 CUDA Cores
+  GPU Clock rate:                                900 MHz (0.90 GHz)
+  Memory Clock rate:                             2508 Mhz
+  Memory Bus Width:                              128-bit
+  L2 Cache Size:                                 262144 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Bus ID / PCI location ID:           1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+ 
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 6.5, CUDA Runtime Version = 6.5, NumDevs = 1, Device0 = GeForce GT 650M
+Result = PASS

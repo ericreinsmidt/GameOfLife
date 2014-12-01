@@ -205,7 +205,7 @@ __global__ void changeCellState(char *currGen, char *nextGen, int rows, int cols
     }
   }
 
-  //__syncthreads();
+  __syncthreads();
 
   // Determine if cell lives, dies, or is born by evaluating how many neighbors it has
   if (currGen[index] == 1) { // Live cell
