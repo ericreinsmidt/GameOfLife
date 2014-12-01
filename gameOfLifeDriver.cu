@@ -1,3 +1,13 @@
+// Author @ Eric Reinsmidt
+// Date @ 2014.11.23
+// Version 0.1
+
+/*
+
+  Driver cuda program for gameOfLife.cu
+
+*/
+
 #include <stdio.h>
 #include <iostream>
 #include "gameOfLife.cu"
